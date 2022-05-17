@@ -11,17 +11,14 @@ class UserController extends Controller
 {
     public function login(LoginRequest $request)
     {
-        $user = User::where('email', $request->email)->first();
-        $attempt = Auth::attempt($request->toArray());
-
-        if (!$user || !$attempt) {
+        if (!Auth::attempt($request->toArray())) {
             return response([
                 'errors' => [
                     'auth' => ['Usuário ou senha inválidos.']
                 ]
             ], 404);
         } else {
-            return response($user, 201);
+            return response(Auth::user(), 201);
         }
     }
 }
