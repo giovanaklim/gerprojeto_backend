@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ApiExceptionManager;
+use App\Facades\Response;
 use App\Http\Requests\LoginRequest;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,8 +20,8 @@ class UserController extends Controller
                     'auth' => ['Usuário ou senha inválidos.']
                 ]
             ], 404);
-        } else {
-            return response(Auth::user(), 201);
         }
+
+        return response(Auth::user(), \Illuminate\Http\Response::HTTP_OK, ['success']);
     }
 }
