@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('head')->nullable();
             $table->date('start')->nullable();
             $table->date('end')->nullable();
+            $table->decimal('value', 12, 2)->nullable();
             $table->enum('status', ['open', 'closed']);
             $table->softDeletes();
         });

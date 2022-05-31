@@ -2,10 +2,10 @@
 
 namespace App\Exceptions;
 
+use App\Helpers\Response;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Response;
 
 class ApiExceptionManager extends Exception
 {
@@ -19,6 +19,7 @@ class ApiExceptionManager extends Exception
      */
     public static function handleException($exception, $data, $customMessage = null): JsonResponse
     {
+
         $customMessage = empty($customMessage) ? 'internal_error' : $customMessage;
         $userUuid = request()->user() !== null ? request()->user()->uuid : 'not_logged';
         $requestId = uniqid();
@@ -78,6 +79,10 @@ class ApiExceptionManager extends Exception
                 break;
             default:
                 break;
+        }
+
+        if (empty($customMessage)) {
+            $customMessage = 'internal error';
         }
 
         return Response::getJsonResponse($customMessage, [], $exceptionCode, $requestId, $errorData);
