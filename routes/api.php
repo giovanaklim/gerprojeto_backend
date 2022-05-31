@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,4 +26,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logout', function () {
         return Auth::guard('web')->logout();
     });
+
+    Route::resource('project', ProjectController::class);
 });

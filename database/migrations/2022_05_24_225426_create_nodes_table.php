@@ -24,6 +24,7 @@ return new class extends Migration
             $table->uuid('to')->nullable();
             $table->date('start')->default(Carbon::now());
             $table->date('end')->default(Carbon::now());
+            $table->decimal('value', 12, 2)->nullable();
             $table->enum('status', ['open', 'closed']);
             $table->softDeletes();
         });

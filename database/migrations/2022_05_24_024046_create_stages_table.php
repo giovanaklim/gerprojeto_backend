@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('detail')->nullable();
             $table->string('head')->nullable();
+            $table->decimal('value', 12, 2)->nullable();
             $table->string('color')->nullable();
             $table->enum('status', ['open', 'closed']);
             $table->softDeletes();
