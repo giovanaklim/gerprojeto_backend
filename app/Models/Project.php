@@ -21,13 +21,13 @@ class Project extends Model
         $this->hasMany(Stage::class);
     }
 
-    public function setStartAttribute($value)
-    {
-        return Carbon::createFromFormat('d/m/Y', $value);
-    }
+    // public function setStartAttribute($value)
+    // {
+    //     return Carbon::createFromFormat('d/m/Y', $value);
+    // }
 
-    public function setEndAttribute($value)
-    {
-        return Carbon::createFromFormat('d/m/Y', $value);
-    }
+    // public function setEndAttribute($value)
+    // {
+    //     return Carbon::createFromFormat('d/m/Y', $value);
+    // }
 }

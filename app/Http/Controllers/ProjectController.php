@@ -22,7 +22,8 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        //
+        $project = Project::where('user_id',1)->get();
+        return response($project, \Illuminate\Http\Response::HTTP_OK, ['success']);
     }
 
     /**
@@ -45,18 +46,17 @@ class ProjectController extends Controller
     {
         DB::beginTransaction();
         try {
-            $request->merge(['user_id' => Auth::user()->id]);
+            $request->merge(['user_id' => 1]);//Auth::user()->id]);
 
             if ($request->dates) {
-                $request->merge(['start' => $request->dates['from']]);
-                $request->merge(['end' => $request->dates['to']]);
+                $request->merge(['start' => Carbon::createFromFormat('d/m/Y', $request->dates['from'])]);
+                $request->merge(['end' => Carbon::createFromFormat('d/m/Y', $request->dates['to'])]);
             }
-
             $project = Project::updateOrCreate(
                 ['id' => $request->id],
                 $request->toArray()
             );
-            if ($request->stages) {
+            if (isset($request->stages)) {
                 $this->storeStages($request->stages, $project);
             }
             DB::commit();
@@ -67,28 +67,37 @@ class ProjectController extends Controller
         }
     }
 
-    public function storeStages($stages, $project): void
+    public function storeStages($stage, $project): void
     {
         try {
-            foreach ($stages as $stage) {
-                $stage['project_id'] = $project->id;
+            $stage['project_id'] = $project->id;
+                return $stage;
+                // $stage['dates'] = project->start
+
+                // if ($stage->dates) {
+                //     $request->merge(['start' => Carbon::createFromFormat('d/m/Y', $request->dates['from'])]);
+                //     $request->merge(['end' => Carbon::createFromFormat('d/m/Y', $request->dates['to'])]);
+                // }
 
                 $data = Stage::create($stage);
 
-                if (!isset($stage->item)) {
-                    continue;
-                }
+                // if (!isset($stage->item)) {
+                //     return;
+                // }
 
-                $stage->each(function ($item) use ($data) {
-                    $item['stage_id'] = $data->id;
-                    Item::create($item);
-                });
-            }
-
-            return;
+                // $stage->each(function ($item) use ($data) {
+                //     $item['stage_id'] = $data->id;
+                //     Item::create($item);
+                // });
         } catch (\Exception $e) {
             ApiExceptionManager::handleException($e, 'store Project', func_get_args());
         }
+    }
+
+    public function getStages($project_id)
+    {
+        $stage = Stage::where('project_id', $project_id)->get();
+        return response($stage, \Illuminate\Http\Response::HTTP_OK, ['success']);
     }
 
     public function storeItems($data, $project)
@@ -127,7 +136,14 @@ class ProjectController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // try {
+        //     Project::find($id)->update($request->toArray());
+        //     //TODO: change user_id for authenticated user_id.
+        //     $project = Project::where('user_id',1)->get();
+        //     return response($project, \Illuminate\Http\Response::HTTP_OK, ['success']);
+        // } catch (\Throwable $th) {
+        //     return ApiExceptionManager::handleException($th, func_get_args(), 'project update error');
+        // }
     }
 
     /**
