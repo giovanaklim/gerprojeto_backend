@@ -9,19 +9,61 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
     public function login(LoginRequest $request)
     {
-        if (!Auth::attempt($request->toArray())) {
-            return response([
-                'errors' => [
-                    'auth' => ['Usuário ou senha inválidos.']
-                ]
-            ], 404);
-        }
+        DB::beginTransaction();
+        try {
+            $user= User::where('email', $request->email)->first();
+            $attempt = Auth::attempt($request->toArray());
+            if (!$user || !$attempt) {
+                throw new Exception("Usuário ou senha inválidos.");
+            } else {
+                $token = $user->createToken('my-app-token')->plainTextToken;
+                $response = [
+                    'user'      => $user,
+                    'token'     => $token
+                ];
+            }
 
-        return response(Auth::user(), \Illuminate\Http\Response::HTTP_OK, ['success']);
+            DB::commit();
+            return response($response,\Illuminate\Http\Response::HTTP_OK, ['success']);
+        } catch (\Exception $th) {
+            DB::rollBack();
+            return ApiExceptionManager::handleException($th, 422,'Erro ao fazer login.');
+        }
     }
+
+    public function isLogged()
+    {
+        DB::beginTransaction();
+        try {
+            DB::commit();
+            return response(Auth::user(),\Illuminate\Http\Response::HTTP_OK, ['success']);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return ApiExceptionManager::handleException($th, func_get_args(), 'user not authenticated');
+        }
+    }
+
+    public function logout()
+    {
+        DB::beginTransaction();
+        try {
+            $user = Auth::user();
+            $user->tokens()->where('id', $user->currentAccessToken()->id)->delete();
+            DB::commit();
+            return response([],\Illuminate\Http\Response::HTTP_OK, ['success']);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return ApiExceptionManager::handleException($th, func_get_args(), 'user delete error');
+        }
+    }
+
 }
+
+
+

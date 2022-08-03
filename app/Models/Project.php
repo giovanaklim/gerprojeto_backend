@@ -16,10 +16,25 @@ class Project extends Model
         'name', 'due_date', 'value', 'status', 'start', 'end', 'company', 'user_id', 'head'
     ];
 
+    protected $appends = ['head_name'];
+
     public function stages()
     {
-        $this->hasMany(Stage::class);
+       return $this->hasMany(Stage::class);
     }
+
+    public function headUser()
+    {
+       return $this->hasOne(Team::class,'id','head');
+    }
+
+    public function getHeadNameAttribute()
+    {
+        $head = Team::find($this->head);
+        return $head->name ?? null;
+    }
+
+
 
     // public function setStartAttribute($value)
     // {

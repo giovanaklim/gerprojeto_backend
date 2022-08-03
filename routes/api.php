@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\StageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TeamController;
 use Illuminate\Http\Request;
@@ -20,17 +21,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('login', [UserController::class, 'login']);
 
-// Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/isLogged', function () {
-        return Auth::user();
-    });
-    Route::get('/logout', function () {
-        return Auth::guard('web')->logout();
-    });
-
+ Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/is-logged', [UserController::class, 'isLogged']);
+    Route::get('/logout', [UserController::class, 'logout']);
+    Route::get('/showStages/{projectId}', [StageController::class, 'showStages']);
     Route::resource('team', TeamController::class);
-
     Route::resource('project', ProjectController::class);
-
-    Route::get('project/get-stages/{id}', [ProjectController::class, 'getStages']);
-// });
+    Route::resource('stage', StageController::class);
+});

@@ -17,6 +17,11 @@ class Stage extends Model
 
     public function project()
     {
-        $this->belongsTo(Project::class);
+      return  $this->belongsTo(Project::class);
+    }
+
+    public function headUser()
+    {
+       return $this->hasOne(Team::class,'id','head');
     }
 }
