@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -61,6 +62,24 @@ class UserController extends Controller
             DB::rollBack();
             return ApiExceptionManager::handleException($th, func_get_args(), 'user delete error');
         }
+    }
+
+    public function  register(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            $response = User::create([
+                'name' => $request->name,
+                'password' => Hash::make($request->password),
+                'email' =>  $request->email
+            ]);
+            DB::commit();
+            return \App\Helpers\Response::getJsonResponse  ('success', $response, 201);
+        }catch (\Exception $e){
+            DB::rollBack();
+            return ApiExceptionManager::handleException($e, func_get_args());
+        }
+
     }
 
 }

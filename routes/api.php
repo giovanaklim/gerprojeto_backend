@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('login', [UserController::class, 'login']);
+Route::post('register', [UserController::class, 'register']);
 
  Route::middleware('auth:sanctum')->group(function () {
     Route::get('/is-logged', [UserController::class, 'isLogged']);
