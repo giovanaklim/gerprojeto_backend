@@ -22,10 +22,17 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $project = Project::where('user_id', Auth::user()->id)
-            ->with('stages')
-            ->get();
-        return response($project, \Illuminate\Http\Response::HTTP_OK, ['success']);
+        DB::beginTransaction();
+        try {
+            $project = Project::where('user_id', Auth::user()->id)
+                ->with('stages')
+                ->get();
+            DB::commit();
+            return response($project, \Illuminate\Http\Response::HTTP_OK, ['success']);
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return ApiExceptionManager::handleException($e, func_get_args(), 'store project error');
+        }
     }
 
     /**
@@ -108,14 +115,17 @@ class ProjectController extends Controller
      */
     public function update(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
             if ($request->dates) {
                 $request->merge(['start' => Carbon::parse($request->dates['from'])]);
                 $request->merge(['end' => Carbon::parse($request->dates['to'])]);
             }
             Project::find($id)->update($request->toArray());
+            DB::commit();
             return response([], \Illuminate\Http\Response::HTTP_OK, ['success']);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return ApiExceptionManager::handleException($th, func_get_args(), 'project update error');
         }
     }

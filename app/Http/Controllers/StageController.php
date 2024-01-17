@@ -26,8 +26,15 @@ class StageController extends Controller
 
     public function showStages($projectId)
     {
-        $stages = Stage::where('project_id', $projectId)->get();
-        return Response::getJsonResponse('success', $stages, \Illuminate\Http\Response::HTTP_OK);
+        DB::beginTransaction();
+        try {
+            $stages = Stage::where('project_id', $projectId)->get();
+            DB::commit();
+            return Response::getJsonResponse('success', $stages, \Illuminate\Http\Response::HTTP_OK);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ApiExceptionManager::handleException($e, func_get_args(), 'store stage error');
+        }
     }
 
     /**

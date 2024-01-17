@@ -6,6 +6,7 @@ use App\Exceptions\ApiExceptionManager;
 use Illuminate\Http\Request;
 use App\Http\Requests\TeamStoreRequest;
 use App\Models\Team;
+use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Stmt\TryCatch;
 
 class TeamController extends Controller
@@ -17,8 +18,15 @@ class TeamController extends Controller
      */
     public function index()
     {
-        $team = Team::where('user_id',1)->get();
-        return response($team, \Illuminate\Http\Response::HTTP_OK, ['success']);
+        DB::beginTransaction();
+        try {
+            $team = Team::where('user_id', 1)->get();
+            DB::commit();
+            return response($team, \Illuminate\Http\Response::HTTP_OK, ['success']);
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return ApiExceptionManager::handleException($e, func_get_args(), 'store stage error');
+        }
     }
 
     /**
@@ -39,12 +47,15 @@ class TeamController extends Controller
      */
     public function store(TeamStoreRequest $request)
     {
+        DB::beginTransaction();
         try {
             $request->merge(['user_id' => 1]);
             Team::create($request->toArray());
             $team = Team::where('user_id',1)->get();
+            DB::commit();
             return response($team, \Illuminate\Http\Response::HTTP_OK, ['success']);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return ApiExceptionManager::handleException($th, func_get_args(), 'team store error');
         }
     }
@@ -80,12 +91,15 @@ class TeamController extends Controller
      */
     public function update(TeamStoreRequest $request, $id)
     {
+        DB::beginTransaction();
         try {
             Team::find($id)->update($request->toArray());
             //TODO: change user_id for authenticated user_id.
             $team = Team::where('user_id',1)->get();
+            DB::commit();
             return response($team, \Illuminate\Http\Response::HTTP_OK, ['success']);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return ApiExceptionManager::handleException($th, func_get_args(), 'team update error');
         }
     }
@@ -98,11 +112,14 @@ class TeamController extends Controller
      */
     public function destroy($id)
     {
+        DB::beginTransaction();
         try {
             Team::destroy($id);
             $team = Team::where('user_id',1)->get();
+            DB::commit();
             return response($team, \Illuminate\Http\Response::HTTP_OK, ['success']);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return ApiExceptionManager::handleException($th, func_get_args(), 'team delete error');
         }
     }
