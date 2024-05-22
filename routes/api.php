@@ -27,6 +27,7 @@ Route::post('register', [UserController::class, 'register']);
     Route::get('/logout', [UserController::class, 'logout']);
     Route::get('/showStages/{projectId}', [StageController::class, 'showStages']);
     Route::resource('team', TeamController::class);
-    Route::resource('project', ProjectController::class);
+     Route::resource('project', ProjectController::class);
+     Route::post('/update-project', [ProjectController::class, 'update']);
     Route::resource('stage', StageController::class);
 });

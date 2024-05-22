@@ -73,27 +73,12 @@ class ProjectController extends Controller
         }
     }
 
-    // public function getStages($project_id)
-    // {
-    //     $stage = Stage::where('project_id', $project_id)->get();
-    //     return response($stage, \Illuminate\Http\Response::HTTP_OK, ['success']);
-    // }
-
-    public function storeItems($data, $project)
-    {
-        # code...
-    }
-
     /**
      * Display the specified resource.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        //
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -101,10 +86,6 @@ class ProjectController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -113,15 +94,13 @@ class ProjectController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         DB::beginTransaction();
         try {
-            if ($request->dates) {
-                $request->merge(['start' => Carbon::parse($request->dates['from'])]);
-                $request->merge(['end' => Carbon::parse($request->dates['to'])]);
-            }
-            Project::find($id)->update($request->toArray());
+            Project::where('id', $request->id)->update([
+                'status' => $request->status
+            ]);
             DB::commit();
             return response([], \Illuminate\Http\Response::HTTP_OK, ['success']);
         } catch (\Throwable $th) {
@@ -136,8 +115,4 @@ class ProjectController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
-        //
-    }
 }

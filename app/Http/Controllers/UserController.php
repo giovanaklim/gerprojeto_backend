@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class UserController extends Controller
 {
@@ -40,12 +41,14 @@ class UserController extends Controller
 
     public function isLogged()
     {
-        DB::beginTransaction();
         try {
-            DB::commit();
-            return response(Auth::user(),\Illuminate\Http\Response::HTTP_OK, ['success']);
+            $user = Auth::user();
+            if ($user) {
+                return response($user, \Illuminate\Http\Response::HTTP_OK, ['success']);
+            } else {
+                return response(['error' => 'Unauthenticated'], \Illuminate\Http\Response::HTTP_UNAUTHORIZED);
+            }
         } catch (\Throwable $th) {
-            DB::rollBack();
             return ApiExceptionManager::handleException($th, func_get_args(), 'user not authenticated');
         }
     }
@@ -64,7 +67,7 @@ class UserController extends Controller
         }
     }
 
-    public function  register(Request $request)
+    public function register (Request $request)
     {
         try {
             DB::beginTransaction();
